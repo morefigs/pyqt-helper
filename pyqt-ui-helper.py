@@ -30,7 +30,8 @@ class ObjectStrings:
         '        self.ui.{x._object_name}.setEnabled(enabled)\n')
 
     @staticmethod
-    def def_type(object_type):
+    def from_object_name(object_name: str) -> 'ObjectStrings':
+
         types = {
             'pushButton': QAbstractButtonStrings,
             'toolButton': QAbstractButtonStrings,
@@ -46,12 +47,10 @@ class ObjectStrings:
             'label': QLabelStrings,
             'progressBar': QProgressBarStrings,
         }
-        return types[object_type]
 
-    @classmethod
-    def from_object_name(cls, object_name: str) -> 'ObjectStrings':
         object_type, property_name = object_name.split('_', maxsplit=1)
-        return cls.def_type(object_type)(object_name, object_type, property_name)
+        object_type_strings = types[object_type]
+        return object_type_strings(object_name, object_type, property_name)
 
     def __init__(self, object_name: str, object_type: str, property_name: str):
         self._object_name = object_name
@@ -64,17 +63,20 @@ class ObjectStrings:
                       get_enabled_code: Optional[bool] = True,
                       set_enabled_code: Optional[bool] = True,
                       ) -> str:
-        code = ''
-        if get_value_code:
-            code += self._get_value_code
-        if set_value_code:
-            code += self._set_value_code
-        if get_enabled_code:
-            code += self._get_enabled_code
-        if set_enabled_code:
-            code += self._set_enabled_code
 
-        return code.format(x=self)
+        codes = []
+        if get_value_code:
+            codes.append(self._get_value_code)
+        if set_value_code:
+            codes.append(self._set_value_code)
+        if get_enabled_code:
+            codes.append(self._get_enabled_code)
+        if set_enabled_code:
+            codes.append(self._set_enabled_code)
+
+        all_codes = '\n'.join(codes)
+
+        return all_codes.format(x=self)
 
 
 class QAbstractButtonStrings(ObjectStrings):
@@ -138,33 +140,13 @@ class QProgressBarStrings(ObjectStrings):
 
 
 if __name__ == '__main__':
+
     tests = (
         'pushButton_connected',
+        'pushButton_running',
         'spinBox_distance_mm',
     )
 
     for t in tests:
         x = ObjectStrings.from_object_name(t)
         print(x.generate_code())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

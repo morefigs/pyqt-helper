@@ -7,7 +7,7 @@ Usage
 
 `python pyqt_ui_helper.py widgets.txt`
 
-where `widgets.txt` is a text file containing a PyQt widget object name on each line, and each object name starts with the object type, e.g. `spinBox_distance`.
+where `widgets.txt` is a text file containing a PyQt widget object name on each line e.g. `spinBox_distance`.
 
 Example
 -------

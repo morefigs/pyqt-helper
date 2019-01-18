@@ -5,8 +5,10 @@ from PyQt5.QtWidgets import QAbstractButton, QStackedWidget, QComboBox, QLineEdi
     QSpinBox, QDoubleSpinBox, QLabel, QProgressBar
 
 
-class ObjectStrings:
-    """ Holds various attribute names of a widget object, and generates getter and setter code. """
+class ObjectCodeGen:
+    """
+    Holds various attribute names of a PyQt widget object, and generates getter and setter code.
+    """
     _data_type = None
     _func_get = None
     _func_set = None
@@ -32,22 +34,22 @@ class ObjectStrings:
         '        self.ui.{x._object_name}.setEnabled(enabled)\n')
 
     @staticmethod
-    def from_object_name(object_name: str) -> 'ObjectStrings':
+    def from_object_name(object_name: str) -> 'ObjectCodeGen':
 
         types = {
-            'pushButton': QAbstractButtonStrings,
-            'toolButton': QAbstractButtonStrings,
-            'radioButton': QAbstractButtonStrings,
-            'checkBox': QAbstractButtonStrings,
-            'stackedWidget': QStackedWidgetStrings,
-            'comboBox': QComboBoxStrings,
-            'lineEdit': QLineEditStrings,
-            'textEdit': QTextEditStrings,
-            'plainTextEdit': QPlainTextEditStrings,
-            'spinBox': QSpinBoxStrings,
-            'doubleSpinBox': QDoubleSpinBoxStrings,
-            'label': QLabelStrings,
-            'progressBar': QProgressBarStrings,
+            'pushButton': QAbstractButtonCodeGen,
+            'toolButton': QAbstractButtonCodeGen,
+            'radioButton': QAbstractButtonCodeGen,
+            'checkBox': QAbstractButtonCodeGen,
+            'stackedWidget': QStackedWidgetCodeGen,
+            'comboBox': QComboBoxCodeGen,
+            'lineEdit': QLineEditCodeGen,
+            'textEdit': QTextEditCodeGen,
+            'plainTextEdit': QPlainTextEditCodeGen,
+            'spinBox': QSpinBoxCodeGen,
+            'doubleSpinBox': QDoubleSpinBoxCodeGen,
+            'label': QLabelCodeGen,
+            'progressBar': QProgressBarCodeGen,
         }
 
         object_type, property_name = object_name.split('_', maxsplit=1)
@@ -81,61 +83,61 @@ class ObjectStrings:
         return all_codes.format(x=self)
 
 
-class QAbstractButtonStrings(ObjectStrings):
+class QAbstractButtonCodeGen(ObjectCodeGen):
     _data_type = bool.__name__
     _func_get = QAbstractButton.isChecked.__name__
     _func_set = QAbstractButton.setChecked.__name__
 
 
-class QStackedWidgetStrings(ObjectStrings):
+class QStackedWidgetCodeGen(ObjectCodeGen):
     _data_type = int.__name__
     _func_get = QStackedWidget.currentIndex.__name__
     _func_set = QStackedWidget.setCurrentIndex.__name__
 
 
-class QComboBoxStrings(ObjectStrings):
+class QComboBoxCodeGen(ObjectCodeGen):
     _data_type = int.__name__
     _func_get = QComboBox.currentIndex.__name__
     _func_set = QComboBox.setCurrentIndex.__name__
 
 
-class QLineEditStrings(ObjectStrings):
+class QLineEditCodeGen(ObjectCodeGen):
     _data_type = str.__name__
     _func_get = QLineEdit.text.__name__
     _func_set = QLineEdit.setText.__name__
 
 
-class QTextEditStrings(ObjectStrings):
+class QTextEditCodeGen(ObjectCodeGen):
     _data_type = str.__name__
     _func_get = QTextEdit.toPlainText.__name__
     _func_set = QTextEdit.setText.__name__
 
 
-class QPlainTextEditStrings(ObjectStrings):
+class QPlainTextEditCodeGen(ObjectCodeGen):
     _data_type = str.__name__
     _func_get = QPlainTextEdit.toPlainText.__name__
     _func_set = QPlainTextEdit.setPlainText.__name__
 
 
-class QSpinBoxStrings(ObjectStrings):
+class QSpinBoxCodeGen(ObjectCodeGen):
     _data_type = int.__name__
     _func_get = QSpinBox.value.__name__
     _func_set = QSpinBox.setValue.__name__
 
 
-class QDoubleSpinBoxStrings(ObjectStrings):
+class QDoubleSpinBoxCodeGen(ObjectCodeGen):
     _data_type = float.__name__
     _func_get = QDoubleSpinBox.value.__name__
     _func_set = QDoubleSpinBox.setValue.__name__
 
 
-class QLabelStrings(ObjectStrings):
+class QLabelCodeGen(ObjectCodeGen):
     _data_type = str.__name__
     _func_get = QLabel.text.__name__
     _func_set = QLabel.setText.__name__
 
 
-class QProgressBarStrings(ObjectStrings):
+class QProgressBarCodeGen(ObjectCodeGen):
     _data_type = int.__name__
     _func_get = QProgressBar.value.__name__
     _func_set = QProgressBar.setValue.__name__
@@ -170,8 +172,9 @@ def process_file(argv: List[str]) -> None:
     for object_name in object_names:
         if object_name and not object_name.startswith('#') and '_' in object_name:
             try:
-                output.append(ObjectStrings.from_object_name(object_name).generate_code())
+                output.append(ObjectCodeGen.from_object_name(object_name).generate_code())
             except KeyError:
+                # ignore invalid lines
                 pass
 
     # replaces ".txt" with "_helper.py"
@@ -182,7 +185,7 @@ def process_file(argv: List[str]) -> None:
 
     # save output file
     with output_path.open('w') as f:
-        f.write('# This file is autogenerated, do NOT edit!\n\n\n')
+        f.write('# This file was autogenerated using pyqt-ui-helper.py, do NOT edit\n\n\n')
         f.write(f'class {class_name}Helper:\n\n')
         f.write('\n'.join(output))
 

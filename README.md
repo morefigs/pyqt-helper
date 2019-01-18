@@ -1,5 +1,4 @@
 # pyqt-ui-helper
-========
 
 Script for autogenerating getter and setter code for PyQt UI objects.
 

@@ -33,3 +33,15 @@ class WidgetsHelper:
     def distance_enabled(self, enabled: bool) -> None:
         self.ui.spinBox_distance.setEnabled(enabled)
 ```
+
+A PyQt UI class can then simply inherit `WidgetsHelper` to gain the provided functionality:
+
+```python
+class SomeWindow(QMainWindow, WidgetsHelper):
+
+    def method(self):
+        # enable the distance spin box and set its value to 100
+        self.distance_enabled = True
+        self.distance = 100
+        
+```

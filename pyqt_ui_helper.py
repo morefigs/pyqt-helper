@@ -37,6 +37,7 @@ class ObjectCodeGen:
     def from_object_name(object_name: str) -> 'ObjectCodeGen':
 
         types = {
+            'action': QAbstractButtonCodeGen,
             'pushButton': QAbstractButtonCodeGen,
             'toolButton': QAbstractButtonCodeGen,
             'radioButton': QAbstractButtonCodeGen,

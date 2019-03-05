@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 from typing import Optional, List
 from PyQt5.QtWidgets import QAbstractButton, QStackedWidget, QComboBox, QLineEdit, QTextEdit, QPlainTextEdit, \
-    QSpinBox, QDoubleSpinBox, QLabel, QProgressBar
+    QSpinBox, QDoubleSpinBox, QLabel, QProgressBar, QGroupBox
 
 
 class ObjectCodeGen:
@@ -37,11 +37,12 @@ class ObjectCodeGen:
     def from_object_name(object_name: str) -> 'ObjectCodeGen':
 
         types = {
-            'action': QAbstractButtonCodeGen,
-            'pushButton': QAbstractButtonCodeGen,
-            'toolButton': QAbstractButtonCodeGen,
-            'radioButton': QAbstractButtonCodeGen,
-            'checkBox': QAbstractButtonCodeGen,
+            'groupBox': QWidgetCodeGen,
+            'action': QWidgetCodeGen,
+            'pushButton': QWidgetCodeGen,
+            'toolButton': QWidgetCodeGen,
+            'radioButton': QWidgetCodeGen,
+            'checkBox': QWidgetCodeGen,
             'stackedWidget': QStackedWidgetCodeGen,
             'comboBox': QComboBoxCodeGen,
             'lineEdit': QLineEditCodeGen,
@@ -84,7 +85,7 @@ class ObjectCodeGen:
         return all_codes.format(x=self)
 
 
-class QAbstractButtonCodeGen(ObjectCodeGen):
+class QWidgetCodeGen(ObjectCodeGen):
     _data_type = bool.__name__
     _func_get = QAbstractButton.isChecked.__name__
     _func_set = QAbstractButton.setChecked.__name__

@@ -1,9 +1,8 @@
 from setuptools import setup
-from . import __version__
 
 
 setup(name='pyqt-helper',
-      version=__version__,
+      version='0.0.1',
       description=(
           "PyQt UI Helper is a script for auto-generating boiler plate code for interacting with "
           "PyQt widgets, such as value getters and setters, widget connections, and slot functions."

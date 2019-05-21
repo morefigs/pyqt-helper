@@ -2,7 +2,7 @@ from setuptools import setup
 from . import __version__
 
 
-setup(name='py',
+setup(name='pyqt-helper',
       version=__version__,
       description=(
           "PyQt UI Helper is a script for auto-generating boiler plate code for interacting with "
@@ -24,7 +24,7 @@ setup(name='py',
       keywords='python, python3, pyqt, pyqt5, ui',
       author='morefigs',
       author_email='morefigs@gmail.com',
-      url='https://github.com/morefigs/pyqt-ui-helper',
+      url='https://github.com/morefigs/pyqt-helper',
       license='MIT',
       packages=[],
       zip_safe=False,

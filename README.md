@@ -1,11 +1,11 @@
-# pyqt-ui-helper
+# pyqt-helper
 
-PyQt UI Helper is a script for auto-generating boiler plate code for interacting with PyQt widgets, such as value getters and setters, widget connections, and slot functions.
+PyQt Helper is a script for auto-generating boiler plate code for interacting with PyQt widgets, such as value getters and setters, widget connections, and slot functions.
 
 Usage
 -----
 
-`python pyqt_ui_helper.py widgets.txt`
+`python pyqt_helper.py widgets.txt`
 
 where `widgets.txt` is a text file containing a PyQt widget object name on each line e.g. `spinBox_distance`.
 

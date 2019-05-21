@@ -1,6 +1,6 @@
 # pyqt-ui-helper
 
-Script for autogenerating getter and setter code for PyQt UI objects.
+PyQt UI Helper is a script for auto-generating boiler plate code for interacting with PyQt widgets, such as value getters and setters, widget connections, and slot functions.
 
 Usage
 -----
@@ -37,7 +37,7 @@ class WidgetsHelper:
 A PyQt UI class can then simply inherit `WidgetsHelper` to gain the provided functionality:
 
 ```python
-class SomeWindow(QMainWindow, WidgetsHelper):
+class MyWindow(QMainWindow, WidgetsHelper):
 
     def method(self):
         # enable the distance spin box and set its value to 100

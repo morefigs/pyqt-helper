@@ -1,0 +1,6 @@
+# widget names that we want to create helper properties for
+
+action_some_action
+comboBox_some_combo
+pushButton_some_button
+spinBox_some_spin_box

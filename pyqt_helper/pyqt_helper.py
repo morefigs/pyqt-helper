@@ -1,4 +1,4 @@
-import sys
+from sys import argv
 from pathlib import Path
 from typing import Optional, List
 from PyQt5.QtWidgets import QAbstractButton, QStackedWidget, QComboBox, QLineEdit, QTextEdit, QPlainTextEdit, \
@@ -153,19 +153,20 @@ class QAbstractSliderCodeGen(ObjectCodeGen):
     _func_set = QAbstractSlider.setValue.__name__
 
 
-def process_file(argv: List[str]) -> None:
+def process_file(input_file: str, output_file: Optional[str] = None) -> str:
     """
     Take a text file (e.g. main_ui.txt) that contains names of PyQt objects (e.g. spinBox_distance)
     and generates an output file (e.g. main_ui_helper.py) in the same directory that defines a class
     with helper properties for the PyQt object.
     """
-    # check args length
-    if len(argv) != 2:
-        args_str = ", ".join([f'"{x}"' for x in argv[1:]])
-        print(f'Expected 1 argument, but got {len(argv) - 1} ({args_str}).')
-        exit(1)
 
-    input_path = Path(argv[1])
+    input_path = Path(input_file)
+
+    if output_file is None:
+        # replaces ".txt" with "_helper.py"
+        output_path = Path(input_path.with_name(f'{input_path.stem}_helper')).with_suffix('.py')
+    else:
+        output_path = Path(output_file)
 
     # get lines from file
     object_names = []
@@ -189,9 +190,6 @@ def process_file(argv: List[str]) -> None:
                 # ignore invalid lines
                 print(f'Unknown widget type for {object_name}.')
 
-    # replaces ".txt" with "_helper.py"
-    output_path = Path(input_path.with_name(f'{input_path.stem}_helper')).with_suffix('.py')
-
     # class name is file name converted to CamelCase and with "Helper" appended
     class_name = ''.join(word.capitalize() for word in input_path.stem.split('_'))
 
@@ -202,7 +200,26 @@ def process_file(argv: List[str]) -> None:
         f.write('\n'.join(output))
 
     print(f'Successfully processed {worked} object names.')
+    return str(output_path)
+
+
+def main(argv: List[str]) -> None:
+
+    # validate inputs
+    args = argv[1:]
+    if len(args) not in (1, 2):
+        args_str = ", ".join([f'"{x}"' for x in args])
+        raise TypeError(f'Expected 1 or 2 arguments but got {len(args)} ({args_str}).')
+
+    # get/generate input and output files
+    input_file = argv[1]
+    try:
+        output_file = argv[2]
+    except IndexError:
+        output_file = None
+
+    process_file(input_file, output_file)
 
 
 if __name__ == '__main__':
-    process_file(sys.argv)
+    main(argv)

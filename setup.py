@@ -2,10 +2,10 @@ from setuptools import setup
 
 
 setup(name='pyqt-helper',
-      version='0.0.1',
+      version='0.0.2',
       description=(
-          "PyQt UI Helper is a script for auto-generating boiler plate code for interacting with "
-          "PyQt widgets, such as value getters and setters, widget connections, and slot functions."
+          "PyQt Helper is a script for auto-generating boiler plate code for interacting with PyQt "
+          "widgets, such as value getters and setters, widget connections, and slot functions."
       ),
       # https://pypi.org/pypi?%3Aaction=list_classifiers
       classifiers=[
@@ -25,13 +25,17 @@ setup(name='pyqt-helper',
       author_email='morefigs@gmail.com',
       url='https://github.com/morefigs/pyqt-helper',
       license='MIT',
-      packages=[],
+      packages=[
+          'pyqt_helper',
+      ],
       zip_safe=False,
       install_requires=[
           'pyqt5',
       ],
       extras_requires={
-          'dev': []
+          'dev': [
+              'pytest',
+          ]
       }
       )
 

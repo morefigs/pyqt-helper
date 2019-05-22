@@ -1,11 +1,5 @@
 import pytest
-import pkg_resources
 from pyqt_helper.pyqt_helper import main, process_file
-
-
-def test_version():
-    version = pkg_resources.require('pyqt-helper')[0].version
-    assert version == '0.0.2'
 
 
 def test_main():

@@ -40,6 +40,6 @@ setup(name='pyqt-helper',
       }
       )
 
-# python3 -m pip install --user --upgrade setuptools wheel twine
-# python3 setup.py sdist bdist_wheel
-# python3 -m twine upload dist/*
+# python -m pip install --user --upgrade setuptools wheel twine
+# python setup.py sdist bdist_wheel
+# python -m twine upload dist/*

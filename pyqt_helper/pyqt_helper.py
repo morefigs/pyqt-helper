@@ -73,9 +73,9 @@ class QWidgetCodeGenerator:
         self._property_name = property_name
 
     def generate_code(self) -> str:
-
-        print(self, type(self), QAbstractButtonCodeGenerator(), )
-
+        """
+        Generate code for the widget.
+        """
         valid_templates = []
 
         for template in self._all_templates:

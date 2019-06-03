@@ -3,9 +3,7 @@ from pyqt_helper.pyqt_helper import main, process_file
 
 
 def test_main():
-    with pytest.raises(TypeError):
-        main()
-
+    # test number of args
     for argv in (
         [],
         ['a'],

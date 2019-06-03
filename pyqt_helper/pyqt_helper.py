@@ -1,156 +1,192 @@
-from sys import argv
+from sys import argv as argv_
 from pathlib import Path
-from typing import Optional, List
-from PyQt5.QtWidgets import QAbstractButton, QStackedWidget, QComboBox, QLineEdit, QTextEdit, QPlainTextEdit, \
-    QSpinBox, QDoubleSpinBox, QLabel, QProgressBar, QGroupBox, QAbstractSlider
+from typing import Optional, List, Type
+from PyQt5.QtWidgets import QAbstractButton, QStackedWidget, QComboBox, QLineEdit, QTextEdit,\
+    QPlainTextEdit, QSpinBox, QDoubleSpinBox, QLabel, QProgressBar, QAbstractSlider
 
 
-class ObjectCodeGen:
+class QWidgetCodeGenerator:
     """
-    Holds various attribute names of a PyQt widget object, and generates getter and setter code.
+    Holds various attribute names of a PyQt widget object and generates code using them.
     """
-    _data_type = None
-    _func_get = None
-    _func_set = None
+    _name_value_type: Optional[str] = None
+    _name_get_value_func: Optional[str] = None
+    _name_set_value_func: Optional[str] = None
+    _name_get_enabled_func: str = 'isEnabled'
+    _name_set_enabled_func: str = 'setEnabled'
 
-    _get_value_code = (
+    _template_get_value = (
         '    @property\n'
-        '    def {x._property_name}(self) -> {x._data_type}:\n'
-        '        return self.ui.{x._object_name}.{x._func_get}()\n')
+        '    def {object._property_name}(self) -> {object._name_value_type}:\n'
+        '        return self.ui.{object._object_name}.{object._name_get_value_func}()\n'
+    )
 
-    _set_value_code = (
-        '    @{x._property_name}.setter\n'
-        '    def {x._property_name}(self, value: {x._data_type}) -> None:\n'
-        '        self.ui.{x._object_name}.{x._func_set}(value)\n')
+    _template_set_value = (
+        '    @{object._property_name}.setter\n'
+        '    def {object._property_name}(self, value: {object._name_value_type}) -> None:\n'
+        '        self.ui.{object._object_name}.{object._name_set_value_func}(value)\n'
+    )
 
-    _get_enabled_code = (
+    _template_get_enabled = (
         '    @property\n'
-        '    def {x._property_name}_enabled(self) -> bool:\n'
-        '        return self.ui.{x._object_name}.isEnabled()\n')
+        '    def {object._property_name}_enabled(self) -> bool:\n'
+        '        return self.ui.{object._object_name}.{object._name_get_enabled_func}()\n'
+    )
 
-    _set_enabled_code = (
-        '    @{x._property_name}_enabled.setter\n'
-        '    def {x._property_name}_enabled(self, enabled: bool) -> None:\n'
-        '        self.ui.{x._object_name}.setEnabled(enabled)\n')
+    _template_set_enabled = (
+        '    @{object._property_name}_enabled.setter\n'
+        '    def {object._property_name}_enabled(self, enabled: bool) -> None:\n'
+        '        self.ui.{object._object_name}.{object._name_set_enabled_func}(enabled)\n'
+    )
 
-    @staticmethod
-    def from_object_name(object_name: str) -> 'ObjectCodeGen':
+    _all_templates = (
+        _template_get_value,
+        _template_set_value,
+        _template_get_enabled,
+        _template_set_enabled,
+    )
 
-        types = {
-            'groupBox': QWidgetCodeGen,
-            'action': QWidgetCodeGen,
-            'pushButton': QWidgetCodeGen,
-            'toolButton': QWidgetCodeGen,
-            'radioButton': QWidgetCodeGen,
-            'checkBox': QWidgetCodeGen,
-            'stackedWidget': QStackedWidgetCodeGen,
-            'comboBox': QComboBoxCodeGen,
-            'lineEdit': QLineEditCodeGen,
-            'textEdit': QTextEditCodeGen,
-            'plainTextEdit': QPlainTextEditCodeGen,
-            'spinBox': QSpinBoxCodeGen,
-            'doubleSpinBox': QDoubleSpinBoxCodeGen,
-            'label': QLabelCodeGen,
-            'progressBar': QProgressBarCodeGen,
-            'verticalSlider': QAbstractSliderCodeGen,
-            'horizontalSlider': QAbstractSliderCodeGen,
+    @classmethod
+    def _template_generatable(cls, template: str) -> bool:
+        """
+        Returns whether the class has the required info to generate code for a specified code
+        template string.
+        """
+        get_set_value_requires = (cls._name_value_type is not None and
+                                  cls._name_get_value_func is not None and
+                                  cls._name_set_value_func is not None)
+        get_set_enable_requires = (cls._name_get_enabled_func is not None and
+                                   cls._name_set_enabled_func)
+
+        requirements = {
+            cls._template_get_value: get_set_value_requires,
+            cls._template_set_value: get_set_value_requires,
+            cls._template_get_enabled: get_set_enable_requires,
+            cls._template_set_enabled: get_set_enable_requires,
         }
 
-        object_type, property_name = object_name.split('_', maxsplit=1)
-        object_type_strings = types[object_type]
-        return object_type_strings(object_name, object_type, property_name)
+        return requirements[template]
 
     def __init__(self, object_name: str, object_type: str, property_name: str):
         self._object_name = object_name
         self._object_type = object_type
         self._property_name = property_name
 
-    def generate_code(self,
-                      get_value_code: Optional[bool] = True,
-                      set_value_code: Optional[bool] = True,
-                      get_enabled_code: Optional[bool] = True,
-                      set_enabled_code: Optional[bool] = True,
-                      ) -> str:
+    def generate_code(self) -> str:
 
-        codes = []
-        if get_value_code:
-            codes.append(self._get_value_code)
-        if set_value_code:
-            codes.append(self._set_value_code)
-        if get_enabled_code:
-            codes.append(self._get_enabled_code)
-        if set_enabled_code:
-            codes.append(self._set_enabled_code)
+        print(self, type(self), QAbstractButtonCodeGenerator(), )
 
-        all_codes = '\n'.join(codes)
+        valid_templates = []
 
-        return all_codes.format(x=self)
+        for template in self._all_templates:
+            if self._template_generatable(template):
+                valid_templates.append(template)
+
+        templates_str = '\n'.join(valid_templates)
+
+        # substitute object tokens in code with actual object
+        templates_str = templates_str.format(object=self)
+
+        return templates_str
 
 
-class QWidgetCodeGen(ObjectCodeGen):
-    _data_type = bool.__name__
-    _func_get = QAbstractButton.isChecked.__name__
-    _func_set = QAbstractButton.setChecked.__name__
+class QAbstractButtonCodeGenerator(QWidgetCodeGenerator):
+    _name_value_type = bool.__name__
+    _name_get_value_func = QAbstractButton.isChecked.__name__
+    _name_set_value_func = QAbstractButton.setChecked.__name__
 
 
-class QStackedWidgetCodeGen(ObjectCodeGen):
-    _data_type = int.__name__
-    _func_get = QStackedWidget.currentIndex.__name__
-    _func_set = QStackedWidget.setCurrentIndex.__name__
+class QStackedWidgetCodeGenerator(QWidgetCodeGenerator):
+    _name_value_type = int.__name__
+    _name_get_value_func = QStackedWidget.currentIndex.__name__
+    _name_set_value_func = QStackedWidget.setCurrentIndex.__name__
 
 
-class QComboBoxCodeGen(ObjectCodeGen):
-    _data_type = int.__name__
-    _func_get = QComboBox.currentIndex.__name__
-    _func_set = QComboBox.setCurrentIndex.__name__
+class QComboBoxCodeGenerator(QWidgetCodeGenerator):
+    _name_value_type = int.__name__
+    _name_get_value_func = QComboBox.currentIndex.__name__
+    _name_set_value_func = QComboBox.setCurrentIndex.__name__
 
 
-class QLineEditCodeGen(ObjectCodeGen):
-    _data_type = str.__name__
-    _func_get = QLineEdit.text.__name__
-    _func_set = QLineEdit.setText.__name__
+class QLineEditCodeGenerator(QWidgetCodeGenerator):
+    _name_value_type = str.__name__
+    _name_get_value_func = QLineEdit.text.__name__
+    _name_set_value_func = QLineEdit.setText.__name__
 
 
-class QTextEditCodeGen(ObjectCodeGen):
-    _data_type = str.__name__
-    _func_get = QTextEdit.toPlainText.__name__
-    _func_set = QTextEdit.setText.__name__
+class QTextEditCodeGenerator(QWidgetCodeGenerator):
+    _name_value_type = str.__name__
+    _name_get_value_func = QTextEdit.toPlainText.__name__
+    _name_set_value_func = QTextEdit.setText.__name__
 
 
-class QPlainTextEditCodeGen(ObjectCodeGen):
-    _data_type = str.__name__
-    _func_get = QPlainTextEdit.toPlainText.__name__
-    _func_set = QPlainTextEdit.setPlainText.__name__
+class QPlainTextEditCodeGenerator(QWidgetCodeGenerator):
+    _name_value_type = str.__name__
+    _name_get_value_func = QPlainTextEdit.toPlainText.__name__
+    _name_set_value_func = QPlainTextEdit.setPlainText.__name__
 
 
-class QSpinBoxCodeGen(ObjectCodeGen):
-    _data_type = int.__name__
-    _func_get = QSpinBox.value.__name__
-    _func_set = QSpinBox.setValue.__name__
+class QSpinBoxCodeGenerator(QWidgetCodeGenerator):
+    _name_value_type = int.__name__
+    _name_get_value_func = QSpinBox.value.__name__
+    _name_set_value_func = QSpinBox.setValue.__name__
 
 
-class QDoubleSpinBoxCodeGen(ObjectCodeGen):
-    _data_type = float.__name__
-    _func_get = QDoubleSpinBox.value.__name__
-    _func_set = QDoubleSpinBox.setValue.__name__
+class QDoubleSpinBoxCodeGenerator(QWidgetCodeGenerator):
+    _name_value_type = float.__name__
+    _name_get_value_func = QDoubleSpinBox.value.__name__
+    _name_set_value_func = QDoubleSpinBox.setValue.__name__
 
 
-class QLabelCodeGen(ObjectCodeGen):
-    _data_type = str.__name__
-    _func_get = QLabel.text.__name__
-    _func_set = QLabel.setText.__name__
+class QLabelCodeGenerator(QWidgetCodeGenerator):
+    _name_value_type = str.__name__
+    _name_get_value_func = QLabel.text.__name__
+    _name_set_value_func = QLabel.setText.__name__
 
 
-class QProgressBarCodeGen(ObjectCodeGen):
-    _data_type = int.__name__
-    _func_get = QProgressBar.value.__name__
-    _func_set = QProgressBar.setValue.__name__
+class QProgressBarCodeGenerator(QWidgetCodeGenerator):
+    _name_value_type = int.__name__
+    _name_get_value_func = QProgressBar.value.__name__
+    _name_set_value_func = QProgressBar.setValue.__name__
 
 
-class QAbstractSliderCodeGen(ObjectCodeGen):
-    _data_type = int.__name__
-    _func_get = QAbstractSlider.value.__name__
-    _func_set = QAbstractSlider.setValue.__name__
+class QAbstractSliderCodeGenerator(QWidgetCodeGenerator):
+    _name_value_type = int.__name__
+    _name_get_value_func = QAbstractSlider.value.__name__
+    _name_set_value_func = QAbstractSlider.setValue.__name__
+
+
+def get_code_generator(object_name: str) -> 'QWidgetCodeGenerator':
+    """
+    Get the correct code generation using the widget's objectName.
+    """
+    generator_types = {
+        'widget': QWidgetCodeGenerator,
+        'groupBox': QAbstractButtonCodeGenerator,
+        'action': QAbstractButtonCodeGenerator,
+        'pushButton': QAbstractButtonCodeGenerator,
+        'toolButton': QAbstractButtonCodeGenerator,
+        'radioButton': QAbstractButtonCodeGenerator,
+        'checkBox': QAbstractButtonCodeGenerator,
+        'stackedWidget': QStackedWidgetCodeGenerator,
+        'comboBox': QComboBoxCodeGenerator,
+        'lineEdit': QLineEditCodeGenerator,
+        'textEdit': QTextEditCodeGenerator,
+        'plainTextEdit': QPlainTextEditCodeGenerator,
+        'spinBox': QSpinBoxCodeGenerator,
+        'doubleSpinBox': QDoubleSpinBoxCodeGenerator,
+        'label': QLabelCodeGenerator,
+        'progressBar': QProgressBarCodeGenerator,
+        'verticalSlider': QAbstractSliderCodeGenerator,
+        'horizontalSlider': QAbstractSliderCodeGenerator,
+    }
+
+    object_type, property_name = object_name.split('_', maxsplit=1)
+    try:
+        code_generator = generator_types[object_type]
+    except IndexError:
+        raise ValueError('Unknown object type')
+    return code_generator(object_name, object_type, property_name)
 
 
 def process_file(input_file: str, output_file: Optional[str] = None) -> str:
@@ -163,7 +199,7 @@ def process_file(input_file: str, output_file: Optional[str] = None) -> str:
     input_path = Path(input_file)
 
     if output_file is None:
-        # replaces ".txt" with "_helper.py"
+        # converts "some_filename.ext" to "some_filename_helper.py"
         output_path = Path(input_path.with_name(f'{input_path.stem}_helper')).with_suffix('.py')
     else:
         output_path = Path(output_file)
@@ -184,11 +220,15 @@ def process_file(input_file: str, output_file: Optional[str] = None) -> str:
     for object_name in object_names:
         if object_name and not object_name.startswith('#') and '_' in object_name:
             try:
-                output.append(ObjectCodeGen.from_object_name(object_name).generate_code())
-                worked += 1
-            except KeyError:
-                # ignore invalid lines
+                code_generator = get_code_generator(object_name)
+            # ignore unknown object types
+            except ValueError:
                 print(f'Unknown widget type for {object_name}.')
+            else:
+                code = code_generator.generate_code()
+                if code:
+                    output.append(code)
+                    worked += 1
 
     # class name is file name converted to CamelCase and with "Helper" appended
     class_name = ''.join(word.capitalize() for word in input_path.stem.split('_'))
@@ -199,7 +239,7 @@ def process_file(input_file: str, output_file: Optional[str] = None) -> str:
         f.write(f'class {class_name}Helper:\n\n')
         f.write('\n'.join(output))
 
-    print(f'Successfully processed {worked} object names.')
+    print(f'Successfully generated code for {worked} objects.')
     return str(output_path)
 
 
@@ -222,4 +262,4 @@ def main(argv: List[str]) -> None:
 
 
 if __name__ == '__main__':
-    main(argv)
+    main(argv_)

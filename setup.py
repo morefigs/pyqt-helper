@@ -3,7 +3,8 @@ from setuptools import setup
 
 setup(name='pyqt-helper',
       version='0.0.3',
-      description=(
+      description="PyQt Helper auto-generates boiler plate code for interacting with PyQt widgets.",
+      long_description=(
           "PyQt Helper is a script for auto-generating boiler plate code for interacting with PyQt "
           "widgets, such as value getters and setters, widget connections, and slot functions."
       ),

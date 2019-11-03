@@ -1,7 +1,7 @@
 from sys import argv as argv_
 from pathlib import Path
 from typing import Optional, List, Type
-from PyQt5.QtWidgets import QAbstractButton, QStackedWidget, QComboBox, QLineEdit, QTextEdit,\
+from PyQt5.QtWidgets import QAbstractButton, QStackedWidget, QComboBox, QLineEdit, QTextEdit, \
     QPlainTextEdit, QSpinBox, QDoubleSpinBox, QLabel, QProgressBar, QAbstractSlider
 
 
@@ -60,17 +60,20 @@ class QWidgetCodeGenerator:
 
 
     @classmethod
-    def _template_generatable(cls, template: str) -> bool:
+    def _template_is_generatable(cls, template: str) -> bool:
         """
-        Returns whether the class has the required info to generate code for a specified code
-        template string.
+        Checks that we have all of the info required to generate code.
         """
         template_requirements = {
-            cls._template_get_set_widget_value: (cls._widget_value_type_name is not None and
-                                                 cls._widget_get_value_func_name is not None and
-                                                 cls._widget_set_value_func_name is not None),
-            cls._template_get_set_widget_enabled: (cls._widget_get_enabled_func_name is not None and
-                                                   cls._widget_set_enabled_func_name),
+            cls._template_get_set_widget_value: (
+                    cls._widget_value_type_name is not None and
+                    cls._widget_get_value_func_name is not None and
+                    cls._widget_set_value_func_name is not None
+            ),
+            cls._template_get_set_widget_enabled: (
+                    cls._widget_get_enabled_func_name is not None and
+                    cls._widget_set_enabled_func_name
+            ),
             cls._template_connect_primary_signal: cls._widget_primary_signal_name is not None,
             cls._template_primary_signal_slot: True,
         }
@@ -94,7 +97,7 @@ class QWidgetCodeGenerator:
         valid_templates = []
 
         for template in code_types[code_type]:
-            if self._template_generatable(template):
+            if self._template_is_generatable(template):
                 valid_templates.append(template)
 
         templates_str = '\n'.join(valid_templates)
